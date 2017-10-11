@@ -1,0 +1,553 @@
+% !Mode:: "TeX:UTF-8"
+\documentclass{article}
+\usepackage[xetex]{geometry}
+\geometry{
+    a4paper,
+   left=35mm,  %% or inner=23mm
+   right=35mm, %% or outer=18mm
+   top=23mm, bottom=23mm,
+   headheight=2.17cm,
+   headsep=4mm,
+   footskip=8mm
+}
+\usepackage{xspace}
+\usepackage{fancyhdr}
+\usepackage{tipa,metalogo,paralist}
+\usepackage{array}
+
+\usepackage{amsmath,nicefrac,units}
+\usepackage{ntheorem}
+
+\usepackage{empheq}
+\usepackage{harpoon}
+\usepackage{delarray}
+\usepackage[titletoc]{appendix}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{texnames}
+
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{yhmath}
+\usepackage{upgreek}
+\usepackage{amsfonts,mathrsfs,bm}
+\usepackage{textcomp}
+\usepackage[table,svgnames]{xcolor}
+
+\usepackage{framed}
+\usepackage{wallpaper}
+\usepackage{xeCJK,CJKfntef}
+\usepackage{cases}
+\usepackage{arydshln,amscd}
+\usepackage{supertabular}
+\usepackage{breqn}
+\usepackage{tikz}
+\usepackage{blkarray}
+
+\newcommand*{\fancybreak}{%
+  \par
+  \nopagebreak\medskip\nopagebreak
+  \noindent\null\hfill$*\quad*\quad*\quad$\hfill\null\par
+  \nopagebreak\medskip\pagebreak[0]%
+}
+%%%%%%%%%%%中文定制%%%%%%%%%%%
+\defaultfontfeatures{Mapping=tex-text}
+%\setCJKmainfont[BoldFont=SimHei, ItalicFont=KaiTi]{SimSun}
+\setCJKmainfont[BoldFont=Adobe Heiti Std, ItalicFont=Adobe Kaiti Std]{Adobe Song Std}
+\setCJKmonofont[Scale=0.9]{Adobe Kaiti Std}
+\setCJKfamilyfont{kai}[BoldFont=Adobe Heiti Std]{Adobe Kaiti Std}
+\setCJKfamilyfont{hei}[BoldFont=Adobe Heiti Std]{Adobe Heiti Std}
+\setCJKfamilyfont{song}[BoldFont=Droid Sans Fallback]{AR PL UMing CN}
+\setCJKfamilyfont{sf}[BoldFont=Droid Sans Fallback]{Droid Sans Fallback}
+
+ \definecolor{darkgrey}{cmyk}{0,0,0,0.63}%{0,0,0,63}
+ \definecolor{lightgrey}{cmyk}{0,0,0,0.32}%{0,0,0,32}
+\makeatletter
+\fancypagestyle{headings}{%
+  \fancyhf{}
+  \fancyhead[RO]{%
+{\@tikzhead{\leftmark}}
+  }
+  \fancyhead[LE]{%
+{\@tikzhead{\leftmark}}
+  }
+\fancyfoot[LO,RE]{\textcolor[rgb]{0.00390625, 0.43359375,0.77734375} {China\TeX{}} {\fontspec{Exmouth} Math {\color{red}F}A\color{lightblue}Q} $\big\vert$ China\TeX{} 倾情制作}
+  \fancyfoot[RO,LE]{\tikz[baseline]\node[pagefooter]{\thepage};}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\fancypagestyle{headcover}{%
+  \fancyhf{}
+  \fancyhead[RO]{%
+\@tikzhead{\leftmark}
+  }
+  \fancyhead[LE]{%
+{\@tikzhead{\leftmark}}
+  }
+\fancyfoot[LO,RE]{}
+  \fancyfoot[RO,LE]{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\newlength\pagenumwidth
+\settowidth{\pagenumwidth}{99}
+\tikzset{pagefooter/.style={
+anchor=base,font=\sffamily\bfseries\small,
+text=white,fill=gray!45,text centered,
+text depth=17mm,text width=\pagenumwidth}}
+\newcommand*{\@tikzhead}[1]%
+{%
+  \begin{tikzpicture}[remember picture,overlay]%
+    \node[yshift=-1.3cm] at (current page.north west)%
+    {%
+      \begin{tikzpicture}[remember picture, overlay]%
+      \draw[fill=lightgrey!40,line width=0mm,draw=none](0,0) rectangle (\paperwidth,13mm);%
+        \node[anchor=east,xshift=.52\paperwidth,yshift=3.5mm,rectangle,line width=0mm,draw=none]%
+              {\begin{minipage}{9cm}\flushleft{{#1}}\end{minipage}};%
+        \node[anchor=east,xshift=.92\paperwidth,yshift=3.5mm,rectangle,line width=0mm,draw=none]%
+              {{\color{black}\textsc{China\TeX{} Documentation Workshop}}};%
+      \end{tikzpicture}%
+    };%
+  \end{tikzpicture}%
+}%
+\pagestyle{headings}
+\newcommand*{\Headline}[1]{\@mkboth{#1}{#1}}%
+%
+\newcommand{\headfont}{\normalfont\mdseries\scshape}
+\makeatother
+
+\definecolor{hellmagenta}{rgb}{1,0.75,0.9}
+\definecolor{hellcyan}{rgb}{0.75,1,0.9}
+\definecolor{hellgelb}{rgb}{1,1,0.8}
+\definecolor{colKeys}{rgb}{0,0,1}
+\definecolor{colIdentifier}{rgb}{0,0,0}
+\definecolor{colComments}{rgb}{1,0,0}
+\definecolor{colString}{rgb}{0,0.5,0}
+\definecolor{darkyellow}{rgb}{1,0.9,0}
+\definecolor{lightblue}{rgb}{.2,.5,1}
+\usepackage{graphics,boites}
+\usepackage{fancyvrb}
+
+\usepackage{pifont}
+\definecolor{niceblue}{rgb}{0,0.4,0.7}
+\definecolor{preblue}{rgb}{0,0,0.4}
+\definecolor{niceblue1}{rgb}{0.17,0.78,0.58}
+
+%%%%%小节样式%%%%%%%%%%%%%%%%%%%
+\usepackage{titlesec,titletoc}
+\renewcommand\thesubsection{\arabic{subsection}}
+\renewcommand\thesection{\Roman{section}}
+\titleformat{\section}[display]{\normalfont}
+    {\filcenter\Large\bfseries --\enspace \thesection
+     \enspace--}{6pt}{\Large\bfseries\filcenter}
+\titleformat{\subsection}[hang]
+{\normalfont
+\bfseries\sffamily\filright}
+{\color{blue}\ding{45}\ \thesubsection}
+{.5em}
+{}[\titlerule{\hbox{\vrule height 3pt}}\vskip -.5em]
+
+
+
+%%%%%定制代码输出%%%%%%%%%%%%%%%%%%%
+\definecolor{lstbgcolor}{rgb}{0.9,0.9,0.9}
+\usepackage{listings}
+\lstloadlanguages{[LaTeX]TeX}
+\usepackage{fancyvrb}
+\newenvironment{latexample}[1][language={[LaTeX]TeX}]
+{\lstset{backgroundcolor=\color{lstbgcolor},
+    keywordstyle=\color[rgb]{0,0,1},
+    commentstyle=\color[rgb]{0.133,0.545,0.133},
+    stringstyle=\color[rgb]{0.627,0.126,0.941},
+    breaklines=true,
+    prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+    frame=single,
+    language={[LaTeX]TeX},
+    basicstyle=\footnotesize\ttfamily, #1}
+  \VerbatimEnvironment\begin{VerbatimOut}{latexample.verb.out}}
+  {\end{VerbatimOut}\par\noindent
+  \begin{minipage}{0.5\linewidth}
+    \lstinputlisting[]{latexample.verb.out}%
+  \end{minipage}\qquad
+  \begin{minipage}{0.4\linewidth}
+    \input{latexample.verb.out}
+  \end{minipage}\\
+}
+\makeatletter
+\renewcommand\tableofcontents{%
+    \centerline{\Large\bfseries \contentsname
+        \@mkboth{%
+           \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}%
+           \vskip 5.3ex%
+    \@starttoc{toc}%
+    }
+\DeclareRobustCommand{\AllTeX}{(L%
+        {\setbox0\hbox{T}%
+         \setbox\@tempboxa\hbox{$\m@th$%
+                                \csname S@\f@size\endcsname
+                                \fontsize\sf@size\z@
+                                \math@fontsfalse\selectfont
+                                A}%
+         \@tempdima\ht0
+         \advance\@tempdima-\ht\@tempboxa
+         \@tempdima\strip@pt\fontdimen1\font\@tempdima
+         \advance\@tempdima-.36em
+         \kern\@tempdima
+         \vbox to\ht0{\box\@tempboxa
+                      \vss}%
+        }\kern-.075em)%
+        \kern-.075em\TeX}
+\makeatother
+
+
+\usepackage{manfnt,amscd}
+
+\usepackage{extarrows}
+\definecolor{qianhong}{rgb}{1, 0.6, 0.75}
+\newcounter{notectr}[subsection]
+\newenvironment{note}
+{\par\addtocounter{notectr}{1}\setlength{\parindent}{0pt}\hskip -\leftmargin {\color{gray!30}\rule{3cm}{3pt}}\vskip-5pt
+{\fboxsep1pt\hskip -\leftmargin \itshape{\color{qianhong}\lhdbend} \ \colorbox{qianhong}{小注\ \thenotectr}}%
+\vskip 1pt\small\itshape}
+{\vskip -15pt\noindent\color{gray!30}\rule{\linewidth}{3pt}}
+
+\definecolor{hypercolor}{rgb}{0.5,0.0,0.5}
+\usepackage[xetex,colorlinks,linkcolor=hypercolor,citecolor=hypercolor,
+             pdftitle=ChinaTeX Math FAQ,
+             pdfauthor=ChinaTeX,
+             urlcolor=hypercolor,filecolor=hypercolor,
+             bookmarksopen]{hyperref}
+\def\CHfaqversion{1.0}
+\def\betaversion{beta}
+\begin{document}
+  \fontsize{12}{20}\selectfont
+  \parindent 2em
+  \definecolor{fondpaille}{cmyk}{0,0,0.1,0}
+  \definecolor{chinablue}{rgb}{0.00390625, 0.43359375,0.77734375}
+\pagecolor{gray!5}
+\begin{titlepage}
+  \begin{tikzpicture}[remember picture,overlay]
+    \shade [left color=chinablue,right color=chinablue](current page.south west) rectangle ([yshift=\paperheight,xshift=-6.5cm]current page.center);
+   % \shade[top color=black,bottom color=MyDarkRed]([yshift=7cm]current page.east)rectangle([yshift=2.5cm]current page.west);
+    \node[text width=.95\textwidth,opacity=.15,yshift=0.5cm,xshift=1.5cm] at (current page.center) {%
+\begin{verbatim}
+\newcommand{\BigFig}[1]{\parbox{12pt}{\Huge #1}}
+\newcommand{\BigZero}{\BigFig{0}}
+\begin{equation*}
+(a_{k1})=\left(
+\begin{matrix}
+0\ldots 0 & 1 & 0\ldots 0\\
+& 0\\
+\BigZero & \cdots & \BigZero\\
+& 0\\
+\end{matrix}
+\right)
+\qquad
+f(x)=
+\begin{cases}
+-x^{2},
+&\text{if $x < 0$;}\\
+\alpha + x,
+&\text{if $0 \leq x \leq 1$;}\\
+x^{2},
+&\text{otherwise.}
+\end{cases}
+\end{equation*}
+\vskip 1cm
+\[
+\begin{CD}
+A @>\log>> B @>>\text{bottom}> C @= D @<<<
+E @<<< F\\
+@V\text{one-one}VV @. @AA\text{onto}A @|\\
+X @= Y @>>> Z @>>> U\\
+@A\beta AA @AA\gamma A @VVV @VVV\\
+D @>\alpha>> E @>>> H @. I\\
+\end{CD}
+\]
+\end{verbatim}%
+};
+  \end{tikzpicture}
+\begin{minipage}[t]{\textwidth}
+\hfill \textcolor[rgb]{0.00390625, 0.43359375,0.77734375}{China\TeX{}} 文档工作室
+\end{minipage}
+\vspace*{3.0cm}
+%\fontspec{Burgues Script} \fontspec{Loki Cola}
+\pdfbookmark[1]{China\TeX{}数学排版常见问题集}{anchor}
+\begin{center}
+\textbf{\Huge \textcolor[rgb]{0.00390625, 0.43359375,0.77734375}{\qquad China\TeX{}}数学排版常见问题集}\\[\baselineskip]
+\Huge \textbf{\textcolor[rgb]{0.00390625, 0.43359375,0.77734375}{\qquad China\TeX{}} \fontspec{Exmouth} Math {\color{red}F}A\color{lightblue}Q} Demo
+\vskip 3cm
+\end{center}
+\newcommand{\BigFig}[1]{\parbox{12pt}{\Huge #1}}
+\newcommand{\BigZero}{\BigFig{0}}
+\begin{equation*}
+\qquad(a_{k1})=\left(
+\begin{matrix}
+0\ldots 0 & 1 & 0\ldots 0\\
+& 0\\
+\BigZero & \cdots & \BigZero\\
+& 0\\
+\end{matrix}
+\right)
+\qquad
+f(x)=
+\begin{cases}
+-x^{2},
+&\text{if $x < 0$;}\\
+\alpha + x,
+&\text{if $0 \leq x \leq 1$;}\\
+x^{2},
+&\text{otherwise.}
+\end{cases}
+\end{equation*}
+
+\vskip 1cm
+
+\[
+\qquad\quad\begin{CD}
+A @>\log>> B @>>\text{bottom}> C @= D \\
+@V\text{one-one}VV @. @AA\text{onto}A @|\\
+X @= Y @>>> Z @>>> U\\
+@A\beta AA @AA\gamma A @VVV @VVV\\
+D @>\alpha>> E @>>> H @. I\\
+\end{CD}
+\]
+
+
+\vskip 3cm
+\begin{flushright}
+\begin{minipage}{.7\textwidth}
+\flushright
+\hrulefill
+
+Released by China\TeX\ Documentation Workshop.\\
+June , 2011\\
+Maker: China\TeX ， Clark Ma\\
+ID: chinatex, Clark\_Ma\\
+\hrulefill
+\end{minipage}
+\end{flushright}
+
+\end{titlepage}
+\pagecolor{white}
+\Headline{写在前面}
+\begin{center}
+{\Large\CJKfamily{hei} 写在前面}
+\end{center}
+\phantomsection
+\addcontentsline{toc}{section}{写在前面}
+
+\bigskip
+许多网友，看了数学常见问题的说明文档，想看看其源代码。由于时间仓促，我就缩减出来了这个版本，原版本中有些处理可能阅读起来比较困难。
+
+这个版本的内容基本保留了源文档的绝大多数的内容，原来文档代码输出使用了 \verb|minted| 包，需要第三方程序支持，在这个版本里去掉了，省去了大家配置程序的工作。
+
+另外，代码使用 \verb|xelatex| 来编译，所需字体可从 \url{http://ftp.chinatex.org/Fonts/ChineseFonts.rar}里下载。
+
+自己若是有兴趣可以自己添加其他更多功能成为自己的常用包，Happy \LaTeX ing!
+\bigskip
+
+\begin{flushright}
+2011年7月\\
+chiantex
+\end{flushright}
+\newpage
+\pagenumbering{Roman}
+\renewcommand\contentsname{目录}
+\phantomsection
+\pdfbookmark[1]{目录}{anchor1}
+\tableofcontents
+\newpage
+
+\section[(La\kern-.075em)\kern-.075em\TeX{}数学排版如何入门？]{\AllTeX{} 数学排版如何入门？}
+\AllTeX{}以其优异的数学排版能力而闻名遐迩，也是目前世界上公认排版数学公式最为优秀的
+系统。对于数学排版入门，需要如何做？我们自己组织了些问题，或许能帮助您。
+
+
+\subsection{我该读什么书？}
+ 书是人类的朋友， 学习\TeX{}公式排版，网络已有的资源非常之丰富，且
+ 都是十分优秀的作品。细细读来，别有韵味。
+
+这里简单介绍些电子书资源，其简介和说明均是个人浅见，欢迎指正。
+
+ %\renewcommand\labelitemi{\ensuremath{\blacksquare}}
+ \begin{compactitem}
+   \item 《More Math into \LaTeX 》，这本书洋洋洒洒写了六百多页，去掉非数学排版的部分，也有近三百页的内容，从公式的基本元素的输入到复杂公式的输入，
+       逐层深入，抽丝剥茧，娓娓道来。这是我首推的一本入门书，这本书有配套视频，当然以我目前的英文水平实在
+       是听不懂，若是您有兴趣可以去下载观瞻观瞻\footnote{\url{http://www.ctan.org/tex-archive/info/examples/Math_into_LaTeX-4}}。
+   \item 《Math mode》，这本书是我的入门书。当然，有个人感情在里面，一直保存着，当然最近这个文档已经更新到了 2.47 版本，可见作者还是对这本书情有独钟的。我觉得他里面介绍相对上一本书要精细要深入一点，也仅仅是我个人观点。不管做怎么说都是
+       吐血推荐的好书。
+   \item 《\LaTeX{} Companion》Ch8，如果说高老头\TeX{}的书是论语，那么这本书算是一本史记，全面而精妙，是所有\LaTeX{} 书中的精品，当然其数学部分--Higher Mathematics，也值得拜读一下。
+ \end{compactitem}
+其他书籍，如《short-math-guide》、《InlineMath》、《The \LaTeX{} Mathematics Companion》、amsmath的相关说明文档等等均需看看。
+
+\fancybreak
+
+\subsection{我该怎么读书？}
+对于读书，但凡学习 \AllTeX{} ，很多时候需要我们去阅读相关电子书，有时也需要利用搜索引擎去搜索相关问题，实际从很多学习者经验来说，我们遇到的很多问题，
+在书中都已经给出了解答。往往很多初学者总是缘木求鱼，舍本逐末，去网络折腾半天，有时还找不到很恰当的答案。
+
+第一，认真研读一本书。基本上，但凡能称得起一本书，其内容都会覆盖到我们所需的基本知识。这一步很重要。因为很多用户入门时不愿读书，
+记住，\AllTeX{} 不欢迎临时抱佛脚的莽撞汉。
+第二，亲自输入代码上机实验。建议初学者亲自输入代码，而不是拷贝电子书的代码来运行。
+第三，材料输入，就是自己找一个公式较多的书籍，或者就是自己的论文，对照着一一输入。做这一步需要初学者能掌握一些基本的知识。
+第四，实践中扩展知识，这是比较高级的阶段了，首先，基本的公式自己可以输入，诸如多行公式，复杂矩阵等，这时需要更多地思考，比如equarray，align这些
+环境有哪些不同，使用上有哪些差异，我应该怎么调节公式才能得到更美观的公式等。
+
+多多练习才是学习 \AllTeX{} 公式排版的王道。
+
+
+
+\fancybreak
+\subsection{我需具备哪些基础知识？}
+
+由于我们这个手册并非入门的书，我们首先简单介绍下基础知识，粗枝大叶而不是面面俱到，仅作为我们手册的前奏。具体知识
+大家还是要去各个电子书去逐步学习。
+\begin{enumerate}
+\item 输入环境；
+\LaTeX{}提供了两种输入数学公式的模式：行内（inline）模式和特显（display）模式\footnote{也有翻译成\textbf{展示模式}的，但是这个词已经有了较好的译法，叫\textbf{展示模式}有些词不达意。}。前者是在\$$\cdots$\$或者\verb|\(| $\cdots$ \verb|\)|之间输入公式\footnote{行内公式的后一种输入方式其实源于\AMSTEX 的输入传统，下面的特显模式的后一种输入方式同样来源于此。}，后者是在\$\$$\cdots$\$\$或者\verb|\[|$\cdots$\verb|\]|之间输入。针对于特显模式使用\verb|\begin{equation}| \ldots\verb|\end{equation}|会生成带编号公式，如不需编号，那么使用\verb|\begin{equation*}|\ldots \verb|\end{equation}|。
+\item 能够输入的字符；下面的字符不能使用\footnote{这些字符在\TeX{} 中已经被定义用来表示特定意义的语法标志。}：\verb|#$%&~_^\{}|。
+如果想输入上述的\verb|#$%&_{}|，
+请使用这种输入方法：\verb|\# \$ \% \& \_ \{ \}|。
+还有一个问题是，在数学模式中输入中文会报错，这个时候如果是行内公式的话尽量把汉字弄出\$$\cdots$\$或者\verb|\(| $\cdots$ \verb|\)|来就可以，但是如果是在特显模式情况下输入汉字，根本没有办法跳脱出来，那么请使用盒子来输入中文比如说
+\verb|\mbox{中文输入}|。
+\item 上标和下标；
+用\verb|^|来表示上标，用\verb|_|来表示下标。如：$C^3_5$需要写作\verb|C^3_5|。
+\item 希腊字母；
+能够输入的希腊字母表如下：
+\begin{center}
+\begin{tabular}{cccccccc}
+$\alpha$      & \verb|\alpha|      & $\theta$    & \verb|\theta|        &
+        $o$         & \verb|o|        & $\tau$     & \verb|\tau| \\
+    $\beta$       & \verb|\beta|       & $\vartheta$ & \verb|\vartheta| &
+        $\pi$       & \verb|\pi|      & $\upsilon$ & \verb|\upsilon| \\
+    $\gamma$      & \verb|\gamma|      & $\iota$     & \verb|\iota|     &
+        $\varpi$    & \verb|\varpi|   & $\phi$     & \verb|\phi| \\
+    $\delta$      & \verb|\delta|      & $\kappa$    & \verb|\kappa|    &
+        $\rho$      & \verb|\rho|     & $\varphi$  & \verb|\varphi| \\
+    $\epsilon$    & \verb|\epsilon|    & $\lambda$   & \verb|\lambda|   &
+        $\varrho$   & \verb|\varrho|  & $\chi$     & \verb|\chi| \\
+    $\varepsilon$ & \verb|\varepsilon| & $\mu$       & \verb|\mu|       &
+        $\sigma$    & \verb|\sigma|   & $\psi$     & \verb|\psi| \\
+    $\zeta$       & \verb|\zeta|       & $\nu$       & \verb|\nu|       &
+        $\varsigma$ & \verb|\varsigma|   & $\omega$   & \verb|\omega| \\
+    $\eta$        & \verb|\eta|        & $\xi$       & \verb|\xi|       &
+        &                 &            & \\
+    $\Gamma$      & \verb|\Gamma|      & $\Lambda$   & \verb|\Lambda|   &
+        $\Sigma$    & \verb|\Sigma|   & $\Psi$     & \verb|\Psi| \\
+    $\Delta$      & \verb|\Delta|      & $\Xi$       & \verb|\Xi|       &
+        $\Upsilon$  & \verb|\Upsilon| & $\Omega$   & \verb|\Omega| \\
+    $\Theta$      & \verb|\Theta|      & $\Pi$       & \verb|\Pi|       &
+        $\Phi$      & \verb|\Phi|     &            & \\
+\end{tabular}
+\end{center}
+%\item 函数；
+\item 分数与开方；分数用\verb|\frac{分子}{分母}|，开方用\verb|\sqrt[n]{表达式}|。如
+\begin{latexample}[]
+$\frac{1}{\pi}$,\quad
+$\sqrt[5]{1+k^2+k^4}$
+\end{latexample}
+\noindent 在输入根式是n省略的情况下会默认为开平方模式。
+\item 省略号；
+使用下面的输入来输入不同的省略号：
+\begin{center}
+\begin{tabular}{cccc}
+$\dots$ & $\cdots$ & $\vdots$ & $\ddots$\\
+\verb|\dots| & \verb|\cdots| & \verb|\vdots| & \verb|\ddots|
+\end{tabular}
+\end{center}
+\item 括号和分隔符；
+()和[ ]和\textbar{}都可以直接输入，\verb|{}|对应于要输入 {\ttfamily
+\char'134\{\char'134\}}，而双线 $||$ 要使用\textbackslash \textbar{}输入。当要显示大号的括号或分隔符时，要对应用\verb|\left|和\verb|\right|，如输入：
+\begin{latexample}[]
+\[f(x,y,z)  = 3y^2 z \left(3 +
+\frac{7x+5}{1+y^2}\right).\]
+\end{latexample}
+
+要注意，\verb|\left|和\verb|\right|只是用来匹配的，本身并不显示，如：
+\begin{latexample}[]
+\[\left.\frac{du}{dx}\right|_{x=0}\]
+\end{latexample}
+\item 多行公式；如下的多行公式：
+\begin{latexample}[]
+\begin{eqnarray*}
+\cos 2\theta &=& \cos^2 \theta - \sin^2 \theta\\
+             &=& 2 \cos^2 \theta - 1.
+\end{eqnarray*}
+\end{latexample}
+
+其中\&是对其点，表示在此对齐。*使\LaTeX{}不自动显示序号，如果想让\LaTeX{}自动标上序号，则把*去掉
+
+\item 矩阵；如下矩阵
+\begin{latexample}[]
+\[ \left(
+\begin{array}{ccc}
+a & b & c \\
+d & e & f \\
+g & h & i
+\end{array}
+\right)\]
+\end{latexample}
+和
+\begin{latexample}[]
+\[ \chi(\lambda) = \left|
+\begin{array}{ccc}
+\lambda - a & -b & -c \\
+-d & \lambda - e & -f \\
+-g & -h & \lambda - i
+\end{array} \right|.\]
+\end{latexample}
+
+\item 导数、极限、求和、积分。下面的微商式：
+\begin{latexample}[]
+\[\frac{du}{dt}\mbox{和}\frac{d^2 u}{dx^2}\]
+\end{latexample}
+
+
+下面的热方程：
+\begin{latexample}[]
+\[ \frac{\partial u}{\partial t}
+   = h^2 \left( \frac{\partial^2 u}
+              {\partial x^2}
+   + \frac{\partial^2 u}{\partial y^2}
+   + \frac{\partial^2 u}{\partial z^2}\right)
+\]
+\end{latexample}
+下面的一些符号：
+\begin{latexample}[]
+\[\lim_{x \to +\infty},\inf_{x > s},\sup_K\]
+\end{latexample}
+下面的极限表达式：
+\begin{latexample}[]
+\[
+\lim_{x \to 0} \frac{3x^2 +7x^3}{x^2 +5x^4} = 3.
+\]
+\end{latexample}
+
+下面的求和式：
+\begin{latexample}[]
+\[ \sum_{k=1}^n k^2 = \frac{1}{2} n (n+1).\]
+\end{latexample}
+
+下面的积分式：
+\begin{latexample}[]
+\[ \int_a^b f(x)\,dx.\]
+\end{latexample}
+在排版中，如$dx$需要和之前的积分式排的更紧密一些，那么要使用\verb|\,|：
+
+\begin{latexample}[]
+\[ \int_0^R \frac{2x\,dx}{1+x^2} = \log(1+R^2).\]
+\end{latexample}
+\begin{latexample}[]
+\[ \int_0^R \frac{2x\,dx}{1+x^2} = \log(1+R^2).\]
+\end{latexample}
+多重积分号的积分号之间也要调整距离，使用\verb|\!|：
+
+\begin{latexample}[]
+\[ \int_0^1 \! \int_0^1 x^2 y^2\,dx\,dy.\]
+\end{latexample}
+\end{enumerate}
+
+\fancybreak
+
+\end{document}

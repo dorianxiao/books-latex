@@ -1,0 +1,716 @@
+%%%%%%%%%%%%%%%%%  m3D 宏包手册中译本 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 1. m3D 宏包是法国 Anthony Phan 写的一个 metapost 宏包，主要是用来
+%     画三维图形，且可以做的某种程度的三维消隐，功能比较强大，为此花了 
+%     一些功夫翻译的该手册，希望对喜欢用 metapost 画图的朋友有用。 
+%
+% 2. 中文间距的调整用的是 Yin Dian 的 zhspacing 宏包，因此编译需要
+%    xetex 0.997 以后的版本，我是在 W32TeX 下编译的。又采用了 lyanry
+%    的版式设计，在此一并致谢！
+%
+% 3. 本人的英文水平太蹩脚了，虽然尽了很大力气翻译，但仍会有很多贻笑大
+%    方的译文，请帮助校对和修改。由于上网的机会很少，大家的意见可能很
+%    长时间不能回复，大家也可以把意见发到我的邮箱：  
+%                      cvgmt@163.com
+%
+% 4. 如果原作者的 m3D 更新了，这个糟糕的译本也希望能相应地更新。
+%
+% 5. 关于 cylinderlike 的图例我把欧拉角改了，因为原来角度的消隐好像有
+%    问题，又为了使得文档不超过 512k, 我把图形的 Resolution 改了一下，
+%    从而改了分辨率，又 W32TeX 好像不能 download 相应的字体，因此图形
+%    中的字体有问题，于是我在 Linux 下的 TeXLive2007 在 mp 文件
+%    beginfig 前加入 filenametemplate"%j-%c.eps";prologues:=3; 先生成
+%    eps,  再用 epspdf 转成 pdf 嵌入的。 
+%
+% 6. 原文中关于欧拉角的描述是错误的（但给出的公式是正确的），有时间的
+%    话，希望有人能写出一篇关于 m3D 中欧拉角介绍性小文章。 
+% 
+% 7. tex 文档附上，我对 tex 排版没研究，其中的排版设置请斧正。
+%
+%                                                    ------ cvgmt
+%
+%                  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\documentclass[a4paper,12pt]{article}
+\usepackage[no-math,cm-default]{fontspec}
+
+
+%%%%%%%%%%%%%%%%% Yin Dian 的中文间距宏包 %%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+\usepackage{zhspacing}
+\usepackage[fakebold]{zhfont}
+\usepackage[noactive]{zhmath}
+\zhspacing
+\makeatletter
+\g@addto@macro\zhs@savefont{%
+\long\edef\zhs@tmpmacro{\f@family}%
+\def\zhs@curr@fam{0}%
+\ifx\zhs@tmpmacro\sfdefault
+\def\zhs@curr@fam{1}%
+\else\ifx\zhs@tmpmacro\ttdefault
+\def\zhs@curr@fam{2}%
+\fi\fi
+\edef\zhs@tmpmacro{\f@family}%
+\ifx\zhs@tmpmacro\sfdefault
+\def\zhs@curr@fam{1}%
+\else\ifx\zhs@tmpmacro\ttdefault
+\def\zhs@curr@fam{2}%
+\fi\fi
+}
+\newfontfamily\zhrmfont[BoldFont=SimHei,
+ItalicFont=KaiTi_GB2312]{SimSun}
+\newfontfamily\zhsffont{SimHei}
+\newfontfamily\zhttfont[BoldFont=SimHei]{KaiTi_GB2312}
+\def\zhfont{\ifcase\zhs@curr@fam\zhrmfont\or\zhsffont
+\or\zhttfont\else\zhrmfont\fi}
+
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{verbatim}{Verbatim}{baselinestretch=0.9}
+
+%%%%%%%%%%%%%%% lyanry 的部分版式设计 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\usepackage[top=1.3in,bottom=1.1in,left=1.2in,right=1in]{geometry}
+\setlength{\parindent}{22pt}
+\setlength{\parskip}{0pt}
+\renewcommand{\baselinestretch}{1.38}
+\usepackage{indentfirst}
+
+\newlength{\mmfontsize}
+\setlength{\mmfontsize}{11pt}
+
+% 段落间距
+\setlength{\parskip}{0pt}
+
+% list 参数配置命令
+\renewcommand{\labelitemii}{$\circ$}
+\newcommand{\listparam}{\setlength{\parsep}{\parskip}
+ \setlength{\itemsep}{0ex plus 0.1ex}
+ \setlength{\labelwidth}{2\mmfontsize}
+ \setlength{\labelsep}{.5\mmfontsize}
+ \setlength{\topsep}{0pt}
+ \setlength{\partopsep}{0pt}
+ \setlength{\leftmargin}{2\mmfontsize}
+}
+
+
+\usepackage[pdfstartview=FitH,
+bookmarksnumbered=true,bookmarksopen=true, colorlinks=true]{hyperref}  
+\hypersetup{pdfauthor={作者：Anthony Phan 译者：cvgmt}, pdftitle={m3D 宏包手册中译本},pdfsubject={MetaPost},pdfkeywords={metapost,3D,tex,MetaFont,欧拉角,消隐,投影}}   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  正文  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\begin{document} 
+\title{\Huge { M3D 宏包手册}}
+\author{Anthony Phan }
+\date{2006 年 12 月 18 日}
+\maketitle
+\section*{引论}
+在九十年代（刚过去的世纪）后半段时候，我发现\TeX, MetaFont，然后是 
+MetaPost。我确实着迷于最后的那个工具，因为它用一种类 MetaFont 的语言 
+生成图形，且允许非常简单图形包含到\TeX 文档中去。我在 3D 图形中的 用 
+MetaPost  的最初尝试很简单：投影系统是纯粹的刚体，图形是由一些线和 标
+签以及仅仅 4 个平坦的面填上固定的颜色。于是我觉得必须要一个参数化的标 
+架，因为我们并不总是知道一个图形是否已经从一个合适的角度观察，这或许富 
+有意义。 从而最首要的步骤完成：有了一个参数化的标架，处理空间坐标，如 
+果它们在屏幕的投影是定向良好的，就画出轮廓。 
+
+然后我听说 Denis Roegel 的~``m3D'' 宏包。它的语法不适合我在 MetaPost
+中已有的 3D-程序的想法，但它的特性便利于从 ~{\tt eps} 转换到 ~{\tt
+  gif} 和动画。我偷学了这个动画设备，自娱以及为我的图形寻找好的角度。
+为了我的网页插图， 我开始了更为复杂的设计 $\cdots\cdots$ 
+
+我的{\it 中心思想}是尽可能保持与通常的  MetaFont 和  MetaPost 程序靠
+拢，但也考虑到所有的 3-维对象如此的复杂性，应当用上一些非常有技巧的代 
+码。因此我转而思考如何尽善尽美地得到一个稳定的， 功能强大的基本程序，
+以及在其图库中加入的一些通常对象。 于是一些相对复杂的对象现在可以通过 
+这些相对基本的对象通过移动，旋转以及放大而得到。 当然，我关于对象
+的想法与面向对象-编程无关， 它只是关于刚体朴实的观念而已。
+
+如此的计划所能达到的目标是有限的，这个~``3D'' 宏包仍在发展中。当某个朋 
+友问我是否能画出一个比他画得更好的图形时， 我很高兴的是能用它去完成。
+
+我的其中一个信念是那些 MetaPost 编程着宁愿建立他（她）的宏包系统而不去
+依赖某人的程序 --- 特别是当这些程序被声明是不稳定的时候。这些编程者只
+是简单地回顾一些语法， 一些特别的改进，就公布他（她）自己的程序到网上，
+用这种方式对其他所有感兴趣于这个程序人给出某些反馈。
+
+\section{基本概念}
+众所周知，MetaPost 提供了标准的设备操控称为颜色的 3 维向量的变量类型：
+数据类型的检查，加法， 减法，数乘。由此看来偏偏缺少了3 维向量和图形的
+仿射变换，可是没有人会去抱怨这个， 因为 MetaPost 是一个2-维定向程序语
+言，因此我们会接受用一些高层次的控制序列来完成这些任务。 
+
+\section{坐标系统}
+\centerline{\XeTeXpdffile m3Dmanual-1.pdf}
+  
+\section{欧拉角}
+给出正交的标架 $(\mathbf{Ox},\mathbf{Oy},\mathbf{Oz})$  和
+$(\mathbf{Ox}',\mathbf{Oy}',\mathbf{Oz}')$, 欧拉角
+$(\theta,\phi,\psi)$ 是满足
+$$
+\left\{
+  \begin{array}{lll}
+  \mathbf{Ox'}&=\cos\phi\cos\theta\times\mathbf{Ox}+\cos\phi\sin\theta 
+\times\mathbf{Oy}+\sin\phi\times\mathbf{Oz}\\
+  \mathbf{Oy'}&=-(\cos\psi\sin\theta+\sin\psi\sin\phi\cos\theta)
+\times\mathbf{Ox}\\
+              &\quad +(\cos\psi\cos\theta-\sin\psi\sin\phi\sin\theta)
+  \times\mathbf{Oy}+\sin\psi\cos\phi\times\mathbf{Oz}\\
+  \mathbf{Oz'}&=(\sin\psi\sin\theta-\cos\psi\sin\phi\cos\theta)
+  \times\mathbf{Ox}\\ 
+  &\quad-(\sin\psi\cos\theta+\cos\psi\sin\phi\sin\theta)\times\mathbf{Oy}  
+ +\cos\psi\cos\phi\times\mathbf{Oz}
+\end{array}
+  \right.
+  $$
+ 的实数组，它们可以由方向 $\mathbf{Ox}'$ 按照
+ $(\mathbf{Ox},\mathbf{Oy},\mathbf{Oz})$-坐标系表示的相关知识确定 ---
+ 我们得到 $\theta$ 和 $\phi$，而由 $(\mathbf{Ox}',\mathbf{Oy}')$ 生成
+ 的平面表示出一个通过  $(\mathbf{Ox},\mathbf{Oy},\mathbf{Oz})$ -坐标系 
+ 表示的落在  $(\mathbf{Ox'},\mathbf{Oy'})$-平面中的一个向量，它与
+ $\mathbf{Ox}'$ 不共线 --- 我们得到最后的  $\psi$.\footnote{此段关于
+   $\theta$, $\phi$ 的叙述与球面坐标相混淆了，与通常书上关于欧拉角的叙  
+   述不符，请查看理论力学课本中相关的内容 --- 译注} 
+
+   
+  因此，一个称为 ~{\tt Angles} 的控制序列在 ~{\tt m3Dplain.mp} 中定义
+  了。 它的参数是两个向量（或颜色）， 称为 $p$ 和 $q$, 它们按下面的途
+  径返回相应于欧拉角的三元组（或颜色） ，称为 $(\theta,\phi,\psi)$:
+  如果   $p$ 为零或者是一个非常小的向量， 它返回 $(0,0,0)$; 否
+  则，$\theta$   和 $\phi$ 按使得 $\mathbf{Ox}'$ 与 $p$ 具有相同的方向  
+  计算；接着，如果 $q$ 看起来与 $p$  非常接近于共线，$\psi$ 就设为 
+  $0$, 否则，$\psi$ 设置为帮助定义整个
+  $(\mathbf{Ox}',\mathbf{Oy}',\mathbf{Oz}')$-正交标架合适的数值，以使
+  得 $(p,q)$-向量平面等价于 $(\mathbf{Ox}',\mathbf{Oy}')$-向量平面且
+  $\mathbf{Ox}'$ 与 $p$ 有同一方向的。  
+  
+  
+\section{投影系统}
+
+\section{演示参数}
+
+有很多参数被 m3D 采用了，描述如下。对不建议改动的参数我们打上一个剑号
+($^{\dagger}$), --- 很大程度上是为了审美这个理由 --- 在一幅图中。
+\begin{list}{$\bullet$}{\listparam}
+\item{\tt ObsZ:=}内部数值$^{\dagger}$.
+  这是屏幕或纸张与观察者之间的距离。它可以带上长度单位。
+\item~{\tt Resolution:=}内部数值$^{\dagger}$.
+  一些预定义的对象用这个参数来决定画图的步骤数。它可以带上长度单位。
+\item~{\tt LightSource:=}颜色$^{\dagger}$.
+  它是光源的位置。
+\item~{\tt LightAtInfinity:=}布尔量$^{\dagger}$.
+  它指示光源是空间中真正的点还是方向。
+\item~{\tt Luminosity:=}内部数值$^{\dagger}$.
+  这是入射光的强度，它在 0 到 1 之间。
+\item~{\tt Contrast:=}内部数值$^{\dagger}$.
+  这是通常的对比度参数，它在 0 到 1 之间。
+\item~{\tt Specularity:=}内部数值。
+  它表示由物体反射的入射光线的比例。它在 0 到 1 之间且在同
+  一图中可以改变，以便粉刷出不同的质感。             
+\item~{\tt Phong:=}内部数值。
+  它表示反射光线在物体展布的量（光泽），它是一个小整数，
+  而且可以在同一图中改变，以便粉刷出各类不同的质感。
+\item~{\tt Fog:=}内部数值$^{\dagger}$.
+  “雾”可以用来粉刷物体。值为 $0$ 意味着没有雾，$1$ 为以指衰减的线性
+  雾，$2$ 为以指数衰减的球状雾。                 
+\item~{\tt FogHalf:=}内部数值$^{\dagger}$.
+  它是雾的指数衰减率。它是一个带上度量单位的正数。
+\item~{\tt FogZ:=}内部数值$^{\dagger}$.
+  它是当雾还可见时相对屏幕往下的 $z$-坐标 。它可以带上度量单位。                     
+\item~{\tt FinePlotFlag:=}布尔量。
+  这个布尔量用于某些控制序列，比如 ~{\tt Plot3D}。
+\item~{\tt mthreeDfont:=}字符串$^{\dagger}$.
+  用于3 维空间中的文本的字体名称。
+\item~{\tt ShadedTextFlag:=}布尔量。
+  这个布尔量指示了在3 维空间演示一个文本是否已经用上了特殊效果。
+\item~{\tt ObjectColor:=}颜色。
+  这是在空间中填充一个面用的颜色。它可以在任何时候改变，以便使得图形有  
+  丰富的颜色。
+\end{list}
+                           
+\section{关于光源}
+
+在 ~{\tt m3Dplain.mp} 只定义了一个光源。它可以设置在无穷远（~{\tt
+  LightAtInfinity:=true}） 或场景中的一些点（~{\tt
+  LightAtInfinity:=false}）。在所有的情形中它的坐标  ~{\tt
+  LightSource } 用于整个屏幕标架且当对象平移或旋转时不会改变，也就
+是对观察者来说光是固定的。 
+
+如果希望光源和特定的对象关联，我们得在对象的中定义写上诸如
+\[
+\hbox{\tt LightSource:=GDir(x,y,z)}
+\]
+如果光源是座落在无穷远；或者
+\[
+\hbox{\tt LightSource:=GCoord(x,y,z)}
+\]
+如果光源是座落在空间中的某一点 （~{\tt (x,y,z)} 是该处的{\it 局部}坐
+标） 。我们注意到这是控制序列 ~{\tt GDir}  和 ~{\tt GCoord} 的使用中非 
+常仅有的方向。 
+
+如果需要多个光源，我们得重新定义 ~{\tt m3Dplain.mp} 的控制序列~{\tt
+  Light }  （由于它已经是沉重的机构，所幸能行得通）
+
+\section{从外面，里面看物体}
+通常，观察者从物体的外面看物体。因此，如果他们的面的定向轮廓的投影呈现
+出正的定向，则该面要画出。 这就是为什么控制序列 ~{\tt Orientation} 默
+认值是 ~{\tt Outside}. 相反的情形我们可以用
+$$\hbox{\tt Inside;} $$
+然后可以用
+$$\hbox{\tt Outside;}$$
+回到默认情形。
+还可以尝试下面的
+$$\hbox{\tt OutsideIn;}
+\qquad\hbox{ 或}\qquad
+\hbox{\tt InsideOut;}$$
+在这种情形下，面总是画出。两者之间的区别是后者的光线效果恢复原状。如果  
+希望达到更加奇异的效果， 他(她)可以摆弄在 ~{\tt m3Dplain.mp} 中作为基
+础而写进的 ~{\tt Orientation} 定义和 ~{\tt   Orienation\_} 数值。
+
+\section{顺序及消隐}
+画单独一个凸体是一件容易的事情：只要画出所有轮廓可见的面，投影，当画它
+的外部（或内部）边缘时作为一个正的（或 负的）定向路径。 因此，在这种情
+况下消隐面不成问题。内和外的转换可以由 ~{\tt Inside} 和  ~{\tt
+  Outside} 控制序列。它们简单地使得定向的条件反过来。  
+
+当处理非凸体的时候，我们不得不分解这个物体为凸的几部份，然后以合适的顺
+序画出。因此，我们  一个相当有技巧性控制序列称为 ~{\tt QuickSort} 已经
+为这个目的而设计了。 它是一些必须包括至少两项的文字论述且它的输出是
+一个称为 ~{\tt SortedList} 的控制序列 ， 它的内容是先前的列表并被整理为
+依照 ~{\tt SortCriterion}. ~{\tt SortCriterion} 是一个包括两个论断（将
+要被分类的对象列表）， 它们替代文字是一个布尔量。默认情况下，这个论断
+是三元组且这个条件是关于它们实际上的相对 当前观察者的深度。因此  ~{\tt
+  QuickSort({\it 三元组的列表})}  将输出 ~{\tt SortedList} ，它的替代文
+字正好是期望的三元组列表顺序。 我们要想改变的话，只须改写 ~{\tt
+  SortCriterion}  ，以便对数值，二元组， 字符串分类。
+
+如果我们依照空间中点的列表的深度执行一系列动作，那么按照这个方法去分类
+将会是优雅的。 一个自然的做法是采用下面的过程：
+
+{\tt OnDepth;}
+
+{\tt Refpoint {\it 三元组};}
+
+{\tt Action ({\it 界定的控制序列})}
+
+
+\noindent
+这个工作程序如下：在 ~{\tt OnDepth} 阶段保存和重设一些东西；使~{\tt
+  Action\_counter} 递增，  以及保存那些在 ~{\tt Refpoint} 援引的当前参
+考点（一个{\it 三元组}）；保存{\it 界定的控制序列 }到一个可变的控制序
+列以当前 ~{\tt Action\_counter} 计数。 （此处有一个小小的技巧我寻觅了 
+很长很长一段时间）；在 ~{\tt endOnDepth}  依照参考点的的深度安排
+$1,\dots,~{\tt  Action\_counter}$ 这些列表， 然后依照存储的列表执行动
+作。在这个进程中最为有趣的是动作可以依赖一些参数， 就像循环或宏包参数。
+注意到 ~{\tt SortCriterion} 当执行 ~{\tt endOnDepth}  有一个特殊和临时
+的涵义: 它的两个论断便成为一些在 $\hbox{1},\dots,  \hbox{\tt
+  Action\_counter}$ 中的指示在两个对应参考点深度比较。  
+
+\section{整合文本}
+很清楚，为了得到好看和有趣的图，有时需要集成一些文句在三维空间，正如我 
+曾经做过一两次让文本环绕着图形。 这是比较特别的。为此定义一些一般的方
+案对我来说是无意义的：它非常复杂， 很难设想人们愿意去做。无论如何，一
+些控制序列允许移动平坦的文本绕圈会是一个要素。 而且，象这样基本的程序
+可以有助于设计特殊的控制序列用 于复杂的任务。
+
+\subsection{简单文本}
+一个被称为 ~{\tt simpletext} 的对象在 ~{\tt m3Dplain.mp} 定义了。它的 
+特殊参数的组成，首先是一些字符串描述定位  (~{\tt"left"}, ~{\tt
+  "justify"}, ~{\tt "center"},~{\tt "right"}), 然后是一些告知文本的参
+考点在何处（特别是~{\tt "right"}, ~{\tt "urt"},~{\tt "top"},~{\tt
+  "ulft"},~{\tt "left"},~{\tt "llft"}, ~{\tt "bot"},~{\tt "lrt"} 或
+[say!]~{\tt "center"}, 那么， 一列字符串就会一个叠一个地呈现出来。 
+
+比如，在顶部许多层将会展示（更进一步{\it 看}关于放大参数）
+
+\begin{verbatim}
+UseObject(simpletext, Origin, (90, 0, 90), 10pt, "justify", "ulft",
+		"Come let me sing into your ear;",
+		"Those dancing days are gone,",
+		"All that silk and satin gear;",
+		"Crouch upon a stone,",
+		"Wrapping that foul body up",
+		"In as foul a rag:",
+		"I carry the sun in a golden cup;",
+		"The moon in a silver bag.");
+\end{verbatim}
+
+ J.B.~Yeats 的诗~ ``Those dancing days are gone'' 的第一部分，在基点
+ ~{\tt Origin }上， 依照标架旋转了 $(90,0,90)$, 放大了 $10\,\rm pt$.
+ 如果可以的话， 每一行将会被调整，基点将参照文本的左上角。    
+ 
+ 这个 ~{\tt simpletext} 对象采用由字串 ~{\tt mthreeDfont}命名的字体（默
+ 认值:~{\tt "rphvb"}）。 它的设计尺寸由被称为 ~{\tt  mthreeDfontsize}
+ （默认值是:~{\tt 10pt}） 数值变量定义。数值参数 ~{\tt baselineskip} 按
+ 通常角色（默认值是:~{\tt 12pt}） 。这些参数仅仅与与字体相关，与 ~{\tt
+   CurrentScale}无关。因此， 当用 ~{\tt Simpletext} 到一个对象时， 注
+ 意{\it 尺寸}的叙述要像
+   $$
+   \hbox{\tt UseObject(simpletext,{\it 原点},{\it 欧拉角},{\it 尺寸},
+     {\it 列出字串},{\it 字串方位},{\it 字串列表})}
+  $$
+ 因为{\it 尺寸}必须是一个{\it 局部尺寸}。
+ 
+ 调整是通过伸展字体的常规空间的宽度到 ~{\tt TextStretchFactor}
+ 得到的。（默认值 $2$ 已经相当大）。 逐次地进入句子的空间： {\it 它们
+   不会缩小为一个单独的空间}。 
+ 
+ 
+ 每一字母分别画出只是为了 保证当投影不是线性时 ，作用在字母上的仿射变
+ 换近似正确 。  { 由于每一个字母有一个特殊的规模，我们必须设 ~{\tt
+     prologues} 为 1 或 2  以便不会超出 MetaPost 的能力（全体字体只会
+   简单地在 eps  图形的开始声明且不是每个字母采用它自己的变换）。} 当
+ 然，我们可以为此采用  PostScript\textsuperscript{TM} 字体。这就是为什 
+ 么我们已经引进  ~{\tt mthreeDfont} 缘故。
+ 
+ 
+\subsection{弯曲文本}
+改进中，还没有公布。
+
+{\it 评论} --- 记住在图形注释仍然可以采用通常的控制序列就像 
+$$
+\hbox{\tt label{\it.方位}({\it 标签}, proj(x, y, z))}
+$$
+诸如 ~{\tt simpletext} 或 ~{\tt curvedtext} 是为了相当特殊的效果。
+
+
+\section{动画}
+\subsection{引论}
+Denis Roegel 论证了用通常的 Unix 工具合并一系列 MetaPost 输出成一个
+GIF 动画（3D 宏包）。 我从他的~``metapost to shell''~脚本中学了不少。
+想法如下是：首先 ，跟进所有的输出的 eps 的最大边框界限；然后转换这些
+eps 输出为以这个最大边框为界限的  PostScript\textsuperscript{TM}或 eps
+文件；分别转换这些最后得到的文件为单一的  GIF 图像；然后再合并所有这些
+图像为一个动画。  
+
+\subsection{ 在m3D 如何做} 
+在文件的末尾将会生成一个额外的脚本，它的名字默认是~{\tt animate-script}
+。一旦 MetaPost  的工作完成，在类 Unix 系统面板的终端（ ~{\tt
+  xterm}）的当前目录中执行 
+$$
+\hbox{\tt bash animate-script}
+$$
+ 最后的输出是 ~{\tt jobname.gif} ，此处 ~{\tt jobname} 是 MetaPost 程
+ 序确实的名字。 
+
+\subsection{额外程序}
+这个脚本需要下列程序:~{\tt sed} 和 ~{\tt convert}。我们选用 ~{\tt sed}
+来改变所有 MetaPost  输出的边界参数 --- 所得到的临时文件命名为 ~{\tt
+  jobname.xxx.eps}，此处 ~{\tt jobname.xxx} 为 MetaPost 输出文件名之一。 
+这个 PostScript\textsuperscript{TM}  到 GIF 的转换由 在 Roegel 的宏包
+中的 Netpbm Library 执行且它们的合并到一个动画中是由  ~{\tt
+  gifmerge}（一个非标准但非常漂亮的 Unix 程序， 可以在网上自由获得）。
+最近几年，ImageMagick （开始版权归  Dupont de Nemours，后来是
+ImageMagick Studio，但实际上是非常自由 ）已经散布到几乎所有的 Linux 发
+行版本中。它是一个把任意东西转成所有东西甚至动画的高质量工具。由前面脚
+本引用的其中 一个基本的控制序列是  ~{\tt convert}。
+
+
+\subsection{细节}
+下面提供更为详细的解释。
+\begin{list}{$\bullet$}{\listparam}
+\item~{\tt Animate({\it  数值},{\it 布尔量或颜色})}
+\item~{\tt AnimateScipt} 字符串变量，由 ~{\tt Animate} 输出的（bash）
+  脚本的名字。
+\item~{\tt AnimateFormat} 字符串变量，动画像的格式。默认值是
+  ~{\tt"gif"} ，但可以改变，比如，~{\tt "mpg"} 或 ~{\tt "mng"}.这个格
+  式必须是 ~{\tt convert} 命令能辨认的，或其他的将可得到        的程序
+  （针对 ~{\tt "mpg"} 格式的~{\tt mpg2encode}）。  
+\item~{\tt AnimateQuality} 数值变量，特别地可以取值为 1，2，4 \dots 
+\item~{\tt AnimateDelay} 数值变量，在动画中每帖$1/100$ 秒时间。
+\item~{\tt AnimateLoop} 数值变量，动画的参数，它的默认值等于 0 （无限
+  次循环播放）。
+\item~{\tt compute\_bbox} 以及 ~{\tt xmin\_}, ~{\tt xmax\_},~{\tt
+    ymin\_}, ~{\tt ymax\_} 已经在前面解释过。 
+\end{list}
+  
+\section{直接输出为 eps }
+{\tt DirectEPS {\it 文件名};}
+
+$\cdots\cdots$
+
+{\tt endDirectEPS;}
+
+
+\section{一些例子}
+第一张图由相当于 ~{\tt TechnoFill} 的 ~{\tt Fill} 生成（我某天得换掉这个
+名字），接下去的一个由相当于  ~{\tt WireFill} 的 ~{\tt Fill}生成（这
+种图形相当的传统）。 我已经加入了一个文本（W.B.Yeats）来测试 ~{\tt
+  simpletext} 对象。 
+在第二张图中有一个圆柱 ，但更为重要的是一个称为 ~{\tt tube} 的对象的用法：通
+过 $x(t), y(t), z(t)$,  一个半径 $r$, 一个 $t$ 的范围给出的空间中的一
+条路径，我们可想像得出这个对象。 然而运算非常易碎（二阶）且可能导出意
+料之外甚至丑陋的效果。如果对象  ~{\tt cylinder} 在 ~{\tt m3Dlib01.mp} 定
+义，那么 ~{\tt tube} 在 ~{\tt   m3Dplain.mp} 就是因为我觉得它是一个基本
+的工具。 
+
+\begin{verbatim}
+let Fill = SolidFill;%TechnoFill;
+ShadedTextFlag := true;
+TextColor := red;
+beginfig(thisfig);
+  interim prologues := 1;
+  OnDepth;
+    Refpoint(1,0,0);
+    Action
+    (UseObject(etube, Origin, (0, 90, 0), 1cm,
+  "(cosd(t*90), 0, t)", 0.25, -3, 0, true, false));
+    Refpoint(-1,0,0);
+    Action
+    (UseObject(etube, Origin, (0, 90, 0), 1cm,
+  "(cosd(t*90), 0, t)", 0.25, 0, 3, false, true));
+    for a = 0 step 45 until 315:
+      Refpoint Dir(a+95,0);
+      Action
+      (UseObject(simpletext, Origin, (a+95, 0, 90), 5pt, "left", "ulft",
+    "Come let me sing into your ear;",
+    "Those dancing days are gone,",
+    "All that silk and satin gear;",
+    "Crouch upon a stone,",
+    "Wrapping that foul body up",
+    "In as foul a rag:",
+    "I carry the sun in a golden cup;",
+    "The moon in a silver bag."));
+    endfor
+  endOnDepth;
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-2.pdf}
+
+
+\begin{verbatim}
+let Fill = WireFill;
+beginfig(thisfig);
+  ObjectColor := (1, 215/255, 0);
+  for i = -2 upto 2:
+    UseObject(tube, Origin, (0, -90, 0), 0.75cm,
+      "(cosd(t*360), sind(t*360), t)", 0.25, i-0.5, i,
+      if i = -2: true else: false fi, false); endfor
+  ObjectColor := 0.5white;
+  UseObject(cylinder, (-2.5, 0, 0)*0.75cm, (0, -90, 0), 0.75cm, 0.4, 5);
+  ObjectColor := (1, 215/255, 0);
+  for i = -2 upto 2:
+    UseObject(tube, Origin, (0, -90, 0), 0.75cm,
+      "(cosd(t*360), sind(t*360), t)", 0.25, i, i+0.5,
+      if i = 2: true else: false fi, false); endfor
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-3.pdf}
+
+
+
+
+这里有两个 Sierpinski--Menger 对象：海绵（对象命名为 ~{\tt
+  sierpinskip\_sponge}） 和垫圈（对象命名为 ~{\tt sierpinskip\_gasket}）。 
+这个海绵由等价于 ~{\tt SolidFill} 的 ~{\tt Fill } 画出，而垫圈由等价于
+~{\tt SolidWireFill} 的 ~{\tt Fill} 画出。两个对象都在 ~{\tt
+  m3Dlib01.mp} 中定义 。这个垫圈 --- 由于以 $4^{n}$ 增长，此处 $n$ 是循环
+的阶数 --- 比画海绵容易得多 --- 后者以 $20^{n}$ 增长。在我当前的 MetaPost 的
+实现中对海绵达到 3 阶不是一件容易的事情。 
+
+\begin{verbatim}
+ObjectColor:=0.75white;
+let Fill = SolidFill;
+beginfig(thisfig);
+  UseObject(sierpinski_sponge, Origin, (10,0,0), 1.5cm, 2);
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-4.pdf}
+
+\begin{verbatim}
+beginfig(thisfig);
+  UseObject(sierpinski_gasket, Origin, (30,0,0), 1.5cm, 5);
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-5.pdf}
+
+
+\begin{verbatim}
+let Fill = SolidFill;
+beginfig(thisfig);
+  save u; u=3cm;
+  ObjectColor := (1, 215/255, 0);
+  ObjectPath :=
+  (eps, 0.65){right}
+  ...{up}(0.45, 1)
+  --(0.5, 1){down}
+  ...{left}(0.1,0.6)% bowl
+  {right}...{down}(0.15,0.55)
+  ...{down}(0.075,0.35){down}
+  ...{down}(0.075, 0.2)
+  ...(0.15,0.15){down}
+  ...{left}(0.1,0.1){right}
+  ...{right}(0.4,0.05)
+  --(0.4,0){left}
+  ...{left}(eps,0.05);
+  OnDepth;
+    % contents
+    Refpoint (0,0,0.8u);
+    Action (ObjectColor := red;
+      UseObject(revolution, (0, 0, 0), Origin, u,
+  (eps, ypart point 0.8 of ObjectPath)..point 0.8 of ObjectPath);
+      ObjectColor := (1, 215/255, 0););
+    % bowl
+    Refpoint (0,0,u);
+    Action (UseObject(revolution, (0, 0, 0), Origin, u,
+  subpath (0.75,3) of ObjectPath););
+    % stem
+    Refpoint (0,0,0.5u);
+    Action (UseObject(revolution, (0, 0, 0), Origin, u,
+  subpath (3,8) of ObjectPath));
+    % foot
+    Refpoint (0,0,0.25u);
+    Action (UseObject(revolution, (0, 0, 0), Origin, u,
+  subpath (8,11) of ObjectPath));
+  endOnDepth;
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-6.pdf}
+
+
+\begin{verbatim}
+Object molecule =
+  M1 = (0, 0, 1); M2 = (1, 0, 0); M3 = (0, 1, 0);
+  M4 = (-1, 0, 0); M5 = (0, -1, 0); M6 = (0, 0, -1);
+  save srad, lrad, j; srad := 0.25; lrad := 0.1;
+  OnDepth;
+    for i = 1 upto 6:
+      Refpoint M[i];
+      Action(ObjectColor:=red;
+        UseObject(sphere, M[i], Origin, srad));
+    endfor
+    for i = 1, 6:
+      for j = 2, 3, 4, 5:
+        Refpoint 0.5[M[i], M[j]];
+        Action(ObjectColor := 0.375white;
+          SpheresLink(M[i], M[j], srad, srad, lrad));
+      endfor
+    endfor
+    for i = 2 upto 5:
+      Refpoint 0.5[M[i], M[if i = 5: 2 else: i+1 fi]];
+      Action(ObjectColor := 0.375white;
+        SpheresLink(M[i], M[if i = 5: 2 else: i+1 fi], srad, srad, lrad));
+    endfor
+  endOnDepth;
+endObject;
+
+let Fill = SolidFill;
+beginfig(thisfig);
+  UseObject(molecule, Origin, Origin, 2cm);
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-7.pdf}
+
+\begin{verbatim}
+let Fill = SolidWireFill;
+ObjectColor := 0.5white;
+PenColor := green;
+%FinePlotFlag:=true;
+beginfig(thisfig);
+  interim prologues := 1;
+  pickup thin.nib;
+  Euler(0,0,0,0.2cm);
+  Frame(-15 step 5 until 15)(-10 step 5 until 10)(-4 step 2 until 6);
+  Plot3D("4cosd(180/3.14159*(x++y))*mexp(-(x++y)*50)", -15, 15, -10, 10);
+  FrameMark (0,0,4);
+  endFrame;
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-8.pdf}
+
+下面例子展示了在 ~{\tt m3Dplain.mp} 中定义的被称为 ~{\tt cylinderlike} 对
+象的用法。
+
+\centerline{\XeTeXpdffile m3Dmanual-9.pdf}
+
+ 它的特殊参数是一个 $xOy$-封闭路径以及柱形的高度。因此，前面的图形可以如下
+得到。 
+\begin{verbatim}
+let Fill = SolidFill;
+ObjectColor := (1, 215/255, 0);
+beginfig(thisfig);
+  UseObject(cylinderlike,(0,0,0),(-210,0,0),1cm,
+    for i= 0 upto 4:
+      2dir(i/5*360)--dir((i+0.5)/5*360)--
+    endfor cycle, 1);
+endfig;
+\end{verbatim}
+
+
+
+它相当简单。然后是 ~{\tt revolution} 对象的一个复杂例子。
+\begin{verbatim}
+beginfig(thisfig);
+  interim prologues:=1;
+  Euler(0,0,0,0.5cm);
+  save h, dh, r; h=4; dh = 1; r=0.75;
+  Frame(-4 step 2 until 4)
+    (-4 step 2 until 4)
+    (-4 step 2 until 4);
+  Inside;
+  % hyperboloide ॆ une nappe
+  ObjectColor := (0, 215/255, 1);
+  UseObject(revolution,Origin,Origin,1,
+    (r*sqrt(h*h+1), h){-r*h/sqrt(h*h+1),-1}
+    for y = h-dh step -dh until -h-eps:
+      ...(r*sqrt(y*y+1), y){-r*y/sqrt(y*y+1), -1} endfor);
+  % cone
+  ObjectColor := (215/255, 1, 0);
+  UseObject(revolution,Origin,Origin,1, (r*h, h)--(eps, 0)--(r*h,-h));
+  % hyperboloide ॆ deux nappes
+  ObjectColor := (1, 215/255, 0);
+  for side = "Inside", "Outside":
+    scantokens side;
+    UseObject(revolution,Origin,Origin,1,
+      reverse((eps, 1){right} for y = 1+dh step dh until h+eps:
+    ...(r*sqrt(y*y-1), y){r, sqrt(y*y-1)/y} endfor));
+  endfor
+  UseObject(revolution,Origin,Origin,1,
+    (eps, -1){right} for y = 1+dh step dh until h+eps:
+      ...(r*sqrt(y*y-1), -y){r, -sqrt(y*y-1)/y} endfor);
+  endFrame;
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-10.pdf}
+
+以及一个 Bezier 由控制序列 ~{\tt BezierPatch} 得到的分片曲面 （当且
+仅当 
+ $ ~{\tt tracingchoices} >0$  时才画出控制点。）
+  \begin{verbatim}
+tracingchoices:=1;
+beginfig(thisfig);
+  interim prologues := 1;
+  interim CurrentScale := 1.5cm;
+  BezierPatch(10,
+    (-1,-1,-0.5), (-1,-0.3,0), (-1,0.3,0), (-1,1,-0.5),
+    (-0.3,-1,0), (-0.3,-0.3,0.5), (-0.3,0.3,0.5), (-0.3,1,0),
+    (0.3,-1,0), (0.3,-0.3,0.5), (0.3,0.3,0.5), (0.3,1,0),
+    (1,-1,-0.5), (1,-0.3,0), (1,0.3,0), (1,1,-0.5));
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-11.pdf}
+ 
+ 
+ 被称为 ~{\tt tube} 的对象可以非常简单地处理一些像画扭结的复杂情形： 
+\begin{verbatim}
+Ox:=(1,0,0);
+Oy:=(0,1,0);
+Oz:=(0,0,1);
+
+beginfig(thisfig);
+  UseObject(tube,Origin,Origin,0.5cm,
+    "(cosd(t)+2cosd(2t), sind(t)-2sind(2t), 2sind(3t))",
+    0.5, 360, 0, false, false);
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-12.pdf}
+
+ 这就是为什么关于这个对象更为复杂的版本:~{\tt etube}(enhanced tube 增
+ 强的管道)被定义。
+\begin{verbatim}
+beginfig(thisfig);
+  UseObject(etube,Origin,Origin,0.5cm,
+    "(cosd(t)+2cosd(2t), sind(t)-2sind(2t), 2sind(3t))",
+    0.5, 360, 0, false, false);
+endfig;
+\end{verbatim}
+\centerline{\XeTeXpdffile m3Dmanual-13.pdf}
+\end{document}
